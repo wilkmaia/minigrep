@@ -37,6 +37,10 @@ impl Config {
     pub fn pattern(&self) -> &str {
         &self.pattern
     }
+
+    pub fn case_sensitive(&self) -> &bool {
+        &self.case_sensitive
+    }
 }
 
 pub fn run(config: Config) -> Result<(), Box<Error>> {

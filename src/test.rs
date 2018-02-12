@@ -55,6 +55,7 @@ fn create_config() {
 
     assert_eq!(config.filename(), FILENAME);
     assert_eq!(config.pattern(), PATTERN);
+    assert_eq!(config.case_sensitive(), &true);
 }
 
 #[test]
