@@ -20,12 +20,12 @@ impl Config {
         Ok(Config { filename, pattern })
     }
 
-    pub fn get_filename(&self) -> &String {
-        &self.filename
+    pub fn get_filename(&self) -> &str {
+        &self.filename.as_str()
     }
 
-    pub fn get_pattern(&self) -> &String {
-        &self.pattern
+    pub fn get_pattern(&self) -> &str {
+        &self.pattern.as_str()
     }
 }
 
@@ -34,6 +34,11 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
 
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
+
+    let matches = search(config.get_pattern(), &contents);
+    for item in matches {
+        println!("{}", item);
+    }
 
     Ok(())
 }
