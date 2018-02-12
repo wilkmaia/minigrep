@@ -11,13 +11,19 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("Insufficient parameters");
-        }
+    pub fn new(mut args: env::Args) -> Result<Config, &'static str> {
+        args.next();
 
-        let pattern = args[1].to_string();
-        let filename = args[2].to_string();
+        let pattern = match args.next() {
+            Some(pattern) => pattern,
+            None => return Err("Missing search pattern"),
+        };
+
+        let filename = match args.next() {
+            Some(filename) => filename,
+            None => return Err("Missing filename"),
+        };
+
         let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
 
         Ok(Config { filename, pattern, case_sensitive })
