@@ -24,11 +24,11 @@ impl Config {
     }
 
     pub fn get_filename(&self) -> &str {
-        &self.filename.as_str()
+        &self.filename
     }
 
     pub fn get_pattern(&self) -> &str {
-        &self.pattern.as_str()
+        &self.pattern
     }
 }
 
