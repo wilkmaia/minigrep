@@ -38,5 +38,17 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
     Ok(())
 }
 
+pub fn search<'a>(pattern: &str, text: &'a str) -> Vec<&'a str> {
+    let mut result = vec![];
+
+    for line in text.lines() {
+        if line.contains(pattern) {
+            result.push(line);
+        }
+    }
+
+    result
+}
+
 #[cfg(test)]
 mod test;

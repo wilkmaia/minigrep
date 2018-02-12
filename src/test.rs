@@ -78,3 +78,17 @@ fn base_program_run() {
     let result = delete_file(FILENAME.to_string()).unwrap();
     assert_eq!(result.status.code(), Some(0));
 }
+
+#[test]
+fn one_result() {
+    let pattern = "duct";
+    let text = "\
+Rust:
+Safe, fast, productive.
+Pick three.";
+
+    assert_eq!(
+        search(pattern, text),
+        vec!["Safe, fast, productive."]
+    );
+}
