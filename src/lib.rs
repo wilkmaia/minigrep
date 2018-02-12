@@ -38,7 +38,12 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 
-    let matches = search_case_sensitive(config.get_pattern(), &contents);
+    let matches = if config.case_sensitive {
+        search_case_sensitive(config.get_pattern(), &contents)
+    } else {
+        search_case_insensitive(config.get_pattern(), &contents)
+    };
+
     for item in matches {
         println!("{}", item);
     }
