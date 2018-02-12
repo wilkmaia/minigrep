@@ -3,7 +3,6 @@ use std::fs::File;
 use std::error::Error;
 use std::io::prelude::*;
 
-#[derive(Debug)]
 pub struct Config {
     filename: String,
     pattern: String,
