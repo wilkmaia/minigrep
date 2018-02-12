@@ -80,7 +80,7 @@ fn base_program_run() {
 }
 
 #[test]
-fn one_result() {
+fn case_sensitive() {
     let pattern = "duct";
     let text = "\
 Rust:
@@ -88,7 +88,21 @@ Safe, fast, productive.
 Pick three.";
 
     assert_eq!(
-        search(pattern, text),
+        search_case_sensitive(pattern, text),
+        vec!["Safe, fast, productive."]
+    );
+}
+
+#[test]
+fn case_insensitive() {
+    let pattern = "DUCT";
+    let text = "\
+Rust:
+Safe, fast, productive.
+Pick three.";
+
+    assert_eq!(
+        search_case_insensitive(pattern, text),
         vec!["Safe, fast, productive."]
     );
 }

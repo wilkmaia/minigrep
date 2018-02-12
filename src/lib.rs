@@ -35,7 +35,7 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 
-    let matches = search(config.get_pattern(), &contents);
+    let matches = search_case_sensitive(config.get_pattern(), &contents);
     for item in matches {
         println!("{}", item);
     }
@@ -43,11 +43,24 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
     Ok(())
 }
 
-pub fn search<'a>(pattern: &str, text: &'a str) -> Vec<&'a str> {
+pub fn search_case_sensitive<'a>(pattern: &str, text: &'a str) -> Vec<&'a str> {
     let mut result = vec![];
 
     for line in text.lines() {
         if line.contains(pattern) {
+            result.push(line);
+        }
+    }
+
+    result
+}
+
+pub fn search_case_insensitive<'a>(pattern: &str, text: &'a str) -> Vec<&'a str> {
+    let pattern = pattern.to_lowercase();
+    let mut result = vec![];
+
+    for line in text.lines() {
+        if line.to_lowercase().contains(&pattern) {
             result.push(line);
         }
     }
