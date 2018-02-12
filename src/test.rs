@@ -47,27 +47,30 @@ fn delete_file(filename: String) -> Result<process::Output, Box<Error>> {
 
 #[test]
 fn create_config() {
-    let args = args();
+    let args = args().into_iter();
 
-    Config::new(&args).unwrap_or_else(|err| {
+    let config = Config::new(args).unwrap_or_else(|err| {
         panic!(err);
     });
+
+    assert_eq!(config.filename(), FILENAME);
+    assert_eq!(config.pattern(), PATTERN);
 }
 
 #[test]
-#[should_panic(expected = "Insufficient parameters")]
+#[should_panic(expected = "Missing search pattern")]
 fn create_invalid_config() {
-    let args: Vec<String> = vec![];
+    let args = vec![].into_iter();
 
-    Config::new(&args).unwrap_or_else(|err| {
+    Config::new(args).unwrap_or_else(|err| {
         panic!(err);
     });
 }
 
 #[test]
 fn base_program_run() {
-    let args = args();
-    let config = Config::new(&args).unwrap();
+    let args = args().into_iter();
+    let config = Config::new(args).unwrap();
 
     let result = touch_file(FILENAME.to_string()).unwrap();
     assert_eq!(result.status.code(), Some(0));

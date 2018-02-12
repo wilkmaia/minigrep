@@ -10,7 +10,9 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(mut args: env::Args) -> Result<Config, &'static str> {
+    pub fn new<T>(mut args: T) -> Result<Config, &'static str>
+    where T: Iterator<Item = String>,
+    {
         args.next();
 
         let pattern = match args.next() {
