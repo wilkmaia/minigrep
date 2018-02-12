@@ -29,25 +29,25 @@ impl Config {
         Ok(Config { filename, pattern, case_sensitive })
     }
 
-    pub fn get_filename(&self) -> &str {
+    pub fn filename(&self) -> &str {
         &self.filename
     }
 
-    pub fn get_pattern(&self) -> &str {
+    pub fn pattern(&self) -> &str {
         &self.pattern
     }
 }
 
 pub fn run(config: Config) -> Result<(), Box<Error>> {
-    let mut file = File::open(config.get_filename())?;
+    let mut file = File::open(config.filename())?;
 
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 
     let matches = if config.case_sensitive {
-        search_case_sensitive(config.get_pattern(), &contents)
+        search_case_sensitive(config.pattern(), &contents)
     } else {
-        search_case_insensitive(config.get_pattern(), &contents)
+        search_case_insensitive(config.pattern(), &contents)
     };
 
     for item in matches {

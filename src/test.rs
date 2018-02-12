@@ -5,7 +5,7 @@ const BIN_NAME: &'static str = "bin_name";
 const FILENAME: &'static str = "__program_run_test_file__";
 const PATTERN: &'static str = "pattern";
 
-fn get_args() -> Vec<String> {
+fn args() -> Vec<String> {
     let bin_name = BIN_NAME.to_string();
     let pattern = PATTERN.to_string();
     let filename = FILENAME.to_string();
@@ -47,7 +47,7 @@ fn delete_file(filename: String) -> Result<process::Output, Box<Error>> {
 
 #[test]
 fn create_config() {
-    let args = get_args();
+    let args = args();
 
     Config::new(&args).unwrap_or_else(|err| {
         panic!(err);
@@ -66,7 +66,7 @@ fn create_invalid_config() {
 
 #[test]
 fn base_program_run() {
-    let args = get_args();
+    let args = args();
     let config = Config::new(&args).unwrap();
 
     let result = touch_file(FILENAME.to_string()).unwrap();
