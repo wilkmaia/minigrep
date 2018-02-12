@@ -58,28 +58,15 @@ pub fn run(config: Config) -> Result<(), Box<Error>> {
 }
 
 pub fn search_case_sensitive<'a>(pattern: &str, text: &'a str) -> Vec<&'a str> {
-    let mut result = vec![];
-
-    for line in text.lines() {
-        if line.contains(pattern) {
-            result.push(line);
-        }
-    }
-
-    result
+    text.lines()
+        .filter(|line| line.contains(pattern))
+        .collect()
 }
 
 pub fn search_case_insensitive<'a>(pattern: &str, text: &'a str) -> Vec<&'a str> {
-    let pattern = pattern.to_lowercase();
-    let mut result = vec![];
-
-    for line in text.lines() {
-        if line.to_lowercase().contains(&pattern) {
-            result.push(line);
-        }
-    }
-
-    result
+    text.lines()
+        .filter(|line| line.to_lowercase().contains(&pattern.to_lowercase()))
+        .collect()
 }
 
 #[cfg(test)]
