@@ -1,0 +1,28 @@
+# Rust FTW
+language: rust
+
+# We don't need sudo to build the project.
+sudo: false
+
+# Let's build the project on all available channels.
+rust:
+  - stable
+
+# All supported OSes.
+os:
+  - linux
+  - osx
+
+# Build both on i686 and x86_64, with backtrace on.
+env:
+  - ARCH=i686 RUST_BACKTRACE=1
+  - ARCH=x86_64 RUST_BACKTRACE=1
+
+# This portion does the build
+script:
+  - cargo build --verbose --all
+  - cargo test --verbose --all
+
+# Disable all email notifications.
+notifications:
+  email: false
