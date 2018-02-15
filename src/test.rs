@@ -76,7 +76,7 @@ fn base_program_run() {
     let result = touch_file(FILENAME.to_string()).unwrap();
     assert_eq!(result.status.code(), Some(0));
 
-    let result = run(config).unwrap();
+    let result = run(&config).unwrap();
     assert_eq!(result, ());
 
     let result = delete_file(FILENAME.to_string()).unwrap();

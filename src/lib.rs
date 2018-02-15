@@ -128,7 +128,7 @@ impl Config {
 ///
 /// - `filename` doesn't exist
 /// - for any reason `filename` could not be read (maybe no read permission)
-pub fn run(config: Config) -> Result<(), Box<Error>> {
+pub fn run(config: &Config) -> Result<(), Box<Error>> {
     let mut file = File::open(config.filename())?;
 
     let mut contents = String::new();

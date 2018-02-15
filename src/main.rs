@@ -9,7 +9,7 @@ fn main() {
         process::exit(1);
     });
 
-    if let Err(err) = minigrep::run(config) {
+    if let Err(err) = minigrep::run(&config) {
         eprintln!("Error running application\n{}", err);
         process::exit(1);
     }
