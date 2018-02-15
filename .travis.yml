@@ -5,6 +5,18 @@ cache: cargo
 # We don't need sudo to build the project.
 sudo: false
 
+# Clippy matrix
+matrix:
+  fast_finish: true
+  include:
+    - rust: nightly-2018-01-12
+      env: # use env so updating versions causes cache invalidation
+        - CLIPPY_VERSION=0.0.179
+      before_script:
+        - cargo install clippy --version $CLIPPY_VERSION || echo "clippy already installed"
+      script:
+        - cargo clippy -- -D clippy
+
 # Let's build the project on all available channels.
 rust:
   - stable
@@ -19,12 +31,8 @@ env:
   - ARCH=i686 RUST_BACKTRACE=1
   - ARCH=x86_64 RUST_BACKTRACE=1
 
-before_script:
-  - cargo +nightly install clippy
-
 # This portion does the build
 script:
-  - cargo +nightly clippy
   - cargo build --verbose --all
   - cargo test --verbose --all
 
