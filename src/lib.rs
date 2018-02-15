@@ -113,7 +113,7 @@ impl Config {
 }
 
 /// Runs the library logic.
-/// The functions expects a `Config` struct containing:
+/// The functions expects a reference to a `Config` struct containing:
 ///
 /// - `filename`: The file in which the search will be conducted
 /// - `pattern`: The pattern the tool will search
