@@ -113,7 +113,7 @@ impl Config {
 }
 
 /// Runs the library logic.
-/// The functions expects a `Config` struct containing:
+/// The functions expects a reference to a `Config` struct containing:
 ///
 /// - `filename`: The file in which the search will be conducted
 /// - `pattern`: The pattern the tool will search
@@ -128,7 +128,7 @@ impl Config {
 ///
 /// - `filename` doesn't exist
 /// - for any reason `filename` could not be read (maybe no read permission)
-pub fn run(config: Config) -> Result<(), Box<Error>> {
+pub fn run(config: &Config) -> Result<(), Box<Error>> {
     let mut file = File::open(config.filename())?;
 
     let mut contents = String::new();
