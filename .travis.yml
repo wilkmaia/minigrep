@@ -1,5 +1,6 @@
 # Rust FTW
 language: rust
+cache: cargo
 
 # We don't need sudo to build the project.
 sudo: false
