@@ -19,13 +19,13 @@ fn touch_file(filename: String) -> Result<process::Output, Box<Error>> {
     if cfg!(target_os = "windows") {
         cmd = format!("fsutil file createnew {}", &filename);
         Ok(process::Command::new("cmd")
-           .args(&["/C", cmd.as_str()])
-           .output()?)
+            .args(&["/C", cmd.as_str()])
+            .output()?)
     } else {
         cmd = format!("touch {}", &filename);
         Ok(process::Command::new("sh")
-           .args(&["-c", cmd.as_str()])
-           .output()?)
+            .args(&["-c", cmd.as_str()])
+            .output()?)
     }
 }
 
@@ -35,13 +35,13 @@ fn delete_file(filename: String) -> Result<process::Output, Box<Error>> {
     if cfg!(target_os = "windows") {
         cmd = format!("del /F {}", &filename);
         Ok(process::Command::new("cmd")
-           .args(&["/C", cmd.as_str()])
-           .output()?)
+            .args(&["/C", cmd.as_str()])
+            .output()?)
     } else {
         cmd = format!("rm {}", &filename);
         Ok(process::Command::new("sh")
-           .args(&["-c", cmd.as_str()])
-           .output()?)
+            .args(&["-c", cmd.as_str()])
+            .output()?)
     }
 }
 
