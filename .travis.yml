@@ -18,8 +18,12 @@ env:
   - ARCH=i686 RUST_BACKTRACE=1
   - ARCH=x86_64 RUST_BACKTRACE=1
 
+before_script:
+  - cargo +nightly install clippy
+
 # This portion does the build
 script:
+  - cargo +nightly clippy
   - cargo build --verbose --all
   - cargo test --verbose --all
 
