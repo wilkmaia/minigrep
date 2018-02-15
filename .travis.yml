@@ -7,8 +7,6 @@ sudo: false
 # Let's build the project on all available channels.
 rust:
   - stable
-  - beta
-  - nightly
 
 # All supported OSes.
 os:
@@ -24,12 +22,6 @@ env:
 script:
   - cargo build --verbose --all
   - cargo test --verbose --all
-
-# Here we allow a build using the nightly channel to fail,
-# because sometimes nightly breaks things.
-matrix:
-  allow_failures:
-    - rust: nightly
 
 # Disable all email notifications.
 notifications:
