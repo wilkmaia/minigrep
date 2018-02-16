@@ -24,7 +24,7 @@ impl Config {
     /// `./minigrep pattern filename`
     ///
     /// The following should not fail
-    /// 
+    ///
     /// ```
     /// let bin_name = String::from("minigrep");
     /// let pattern = String::from("pattern");
@@ -38,7 +38,8 @@ impl Config {
     /// assert_eq!(config.case_sensitive(), &true);
     /// ```
     pub fn new<T>(mut args: T) -> Result<Config, &'static str>
-    where T: Iterator<Item = String>,
+    where
+        T: Iterator<Item = String>,
     {
         args.next();
 
@@ -54,7 +55,11 @@ impl Config {
 
         let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
 
-        Ok(Config { filename, pattern, case_sensitive })
+        Ok(Config {
+            filename,
+            pattern,
+            case_sensitive,
+        })
     }
 
     /// Returns the Config's filename value
@@ -150,9 +155,7 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
 /// Performs a case sensitive search on `text`, looking for `pattern` matches. If a match is found
 /// on a line, the whole line is returned.
 pub fn search_case_sensitive<'a>(pattern: &str, text: &'a str) -> Vec<&'a str> {
-    text.lines()
-        .filter(|line| line.contains(pattern))
-        .collect()
+    text.lines().filter(|line| line.contains(pattern)).collect()
 }
 
 /// Performs a case insensitive search on `text`, looking for `pattern` matches. If a match is found
