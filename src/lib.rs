@@ -137,7 +137,7 @@ impl Config {
 /// - `filename` doesn't exist
 /// - for any reason `filename` could not be read (maybe no read permission)
 pub fn run(config: &Config) -> Result<(), Box<Error>> {
-    let mut file_descriptor = get_fd_handler(config.filename().as_ref())?;
+    let mut file_descriptor = get_fd_handler(config.filename())?;
     let mut contents = String::new();
     file_descriptor.read_to_string(&mut contents)?;
 
@@ -171,7 +171,7 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
 ///
 /// - `filename` doesn't exist
 /// - for any reason `filename` could not be read (maybe no read permission)
-fn get_fd_handler<'a>(filename : &'a str) -> Result<Box<Read>, Box<Error>> {
+fn get_fd_handler(filename : &str) -> Result<Box<Read>, Box<Error>> {
     let file_descriptor = match filename {
         "" => Box::new(io::stdin()) as Box<Read>, 
         name => Box::new(File::open(name)?) as Box<Read>,
