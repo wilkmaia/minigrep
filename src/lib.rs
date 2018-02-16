@@ -1,7 +1,8 @@
 use std::env;
 use std::fs::File;
 use std::error::Error;
-use std::io::prelude::*;
+use std::io;
+use std::io::Read;
 
 /// Holds needed configuration information for the tool.
 ///
@@ -48,9 +49,11 @@ impl Config {
             None => return Err("Missing search pattern"),
         };
 
+        // If no `filename` is provided, an empty string is created,
+        // and will be matched later to read from `stdin`.
         let filename = match args.next() {
             Some(filename) => filename,
-            None => return Err("Missing filename"),
+            None => String::new(),
         };
 
         let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
@@ -134,10 +137,9 @@ impl Config {
 /// - `filename` doesn't exist
 /// - for any reason `filename` could not be read (maybe no read permission)
 pub fn run(config: &Config) -> Result<(), Box<Error>> {
-    let mut file = File::open(config.filename())?;
-
+    let mut file_descriptor = get_fd_handler(config.filename().as_ref())?;
     let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
+    file_descriptor.read_to_string(&mut contents)?;
 
     let matches = if config.case_sensitive {
         search_case_sensitive(config.pattern(), &contents)
@@ -150,6 +152,31 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
     }
 
     Ok(())
+}
+
+/// Get the `Read` trait from either `stdin` or a file name.
+/// This function expects a `filename`, which can be either an empty string
+/// (which is then matched as `stdin`) or the name of a file,
+/// since these are the two possible scenarios for the input.
+///
+/// The `io::stdin()` function returns a `Stdin` struct, which implements the `Read` trait.
+/// `File::open<P: AsRef<Path>>(path: P)` returns `Result<File>` which can be
+/// unwrapped into a `File` struct, which also implements the `Read` trait.
+/// Successfully doing that, we return a `Result` containing the boxed trait `Read`.
+/// We box it since traits cannot be passed by value.
+///
+/// # Errors
+///
+/// The function returns errors on the following situations:
+///
+/// - `filename` doesn't exist
+/// - for any reason `filename` could not be read (maybe no read permission)
+fn get_fd_handler<'a>(filename : &'a str) -> Result<Box<Read>, Box<Error>> {
+    let file_descriptor = match filename {
+        "" => Box::new(io::stdin()) as Box<Read>, 
+        name => Box::new(File::open(name)?) as Box<Read>,
+    };
+    Ok(file_descriptor)
 }
 
 /// Performs a case sensitive search on `text`, looking for `pattern` matches. If a match is found
