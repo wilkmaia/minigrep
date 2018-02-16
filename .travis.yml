@@ -1,9 +1,12 @@
-# Rust FTW
 language: rust
 cache: cargo
 
-# We don't need sudo to build the project.
-sudo: false
+sudo: required
+
+addons:
+  apt:
+    packages:
+      - libssl-dev
 
 # Clippy matrix
 matrix:
@@ -17,24 +20,27 @@ matrix:
       script:
         - cargo clippy -- -D clippy
 
-# Let's build the project on all available channels.
 rust:
   - stable
 
-# All supported OSes.
 os:
   - linux
 
-# Build both on i686 and x86_64, with backtrace on.
 env:
   - ARCH=i686 RUST_BACKTRACE=1
   - ARCH=x86_64 RUST_BACKTRACE=1
 
-# This portion does the build
 script:
   - cargo build --verbose --all
   - cargo test --verbose --all
 
-# Disable all email notifications.
+after_success: |
+  if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+    bash <(curl https://raw.githubusercontent.com/xd009642/tarpaulin/master/travis-install.sh)
+
+    cargo tarpaulin --out Xml
+    bash <(curl -s https://codecov.io/bash)
+  fi
+
 notifications:
   email: false
