@@ -110,3 +110,25 @@ Pick three.";
         vec!["Safe, fast, productive."]
     );
 }
+
+#[test]
+fn stdin_as_input() {
+    let pattern = "DUCT";
+    let text = "\
+Rust:
+Safe, fast, productive.
+Pick three.";
+
+    let cmd = process::Command::new("echo")
+        .arg(text)
+        .stdout(process::Stdio::piped())
+        .output()
+        .expect("Failed to execute `echo`");
+
+    let output = String::from_utf8(cmd.stdout).unwrap();
+
+    assert_eq!(
+        search_case_insensitive(pattern, &output),
+        vec!["Safe, fast, productive."]
+    );
+}
