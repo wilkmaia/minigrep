@@ -40,3 +40,12 @@ Usage aims to be similar to Unix `grep`.
 minigrep <pattern> <filepath>
 ```
 `pattern` is currently a string-only. minigrep should accept regular expressions as well in the [near future](https://github.com/wilkmaia/minigrep/issues/13).
+
+## Code of Conduct
+
+Our CoC is available [here](CODE_OF_CONDUCT.md).
+
+## Contributing
+
+All help is welcome. See [here](CONTRIBUTING.md) our guidelines for community
+contributions.
