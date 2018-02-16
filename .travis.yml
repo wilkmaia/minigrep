@@ -24,7 +24,6 @@ rust:
 # All supported OSes.
 os:
   - linux
-  - osx
 
 # Build both on i686 and x86_64, with backtrace on.
 env:
