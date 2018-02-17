@@ -39,7 +39,7 @@ Usage aims to be similar to Unix `grep`.
 ```sh
 minigrep <pattern> <filepath>
 ```
-`pattern` is currently a string-only. minigrep should accept regular expressions as well in the [near future](https://github.com/wilkmaia/minigrep/issues/13).
+minigrep also accepts regular expressions as `pattern`.
 
 ## Code of Conduct
 
