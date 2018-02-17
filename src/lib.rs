@@ -1,7 +1,10 @@
+extern crate regex; 
+
 use std::env;
 use std::fs::File;
 use std::error::Error;
 use std::io::prelude::*;
+use regex::RegexBuilder;
 
 /// Holds needed configuration information for the tool.
 ///
@@ -139,11 +142,7 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 
-    let matches = if config.case_sensitive {
-        search_case_sensitive(config.pattern(), &contents)
-    } else {
-        search_case_insensitive(config.pattern(), &contents)
-    };
+    let matches = search_regex(config.pattern(), &contents, &config.case_sensitive);
 
     for item in matches {
         println!("{}", item);
@@ -152,17 +151,21 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
     Ok(())
 }
 
-/// Performs a case sensitive search on `text`, looking for `pattern` matches. If a match is found
-/// on a line, the whole line is returned.
-pub fn search_case_sensitive<'a>(pattern: &str, text: &'a str) -> Vec<&'a str> {
-    text.lines().filter(|line| line.contains(pattern)).collect()
-}
+/// Performs a regular expression search on `text`, looking for `pattern` matches. Case sensitivity is
+/// controlled by the `case_sensitive` boolean flag. If a match is found on a line, 
+/// the whole line is returned.
+pub fn search_regex<'a>(pattern: &str, text: &'a str, case_sensitive: &bool) -> Vec<&'a str> {
+    let re = RegexBuilder::new(pattern)
+        .case_insensitive(!case_sensitive)
+        .build();
 
-/// Performs a case insensitive search on `text`, looking for `pattern` matches. If a match is found
-/// on a line, the whole line is returned.
-pub fn search_case_insensitive<'a>(pattern: &str, text: &'a str) -> Vec<&'a str> {
     text.lines()
-        .filter(|line| line.to_lowercase().contains(&pattern.to_lowercase()))
+        .filter(|line| {
+            match re {
+                Ok(ref regex) => regex.is_match(line),
+                Err(_) => line.contains(pattern),
+            }
+        }) 
         .collect()
 }
 

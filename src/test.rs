@@ -84,7 +84,7 @@ fn base_program_run() {
 }
 
 #[test]
-fn case_sensitive() {
+fn case_sensitive_lower_to_lower() {
     let pattern = "duct";
     let text = "\
 Rust:
@@ -92,8 +92,36 @@ Safe, fast, productive.
 Pick three.";
 
     assert_eq!(
-        search_case_sensitive(pattern, text),
+        search_regex(pattern, text, &true),
         vec!["Safe, fast, productive."]
+    );
+}
+
+#[test]
+fn case_sensitive_upper_to_upper() {
+    let pattern = "DUCT";
+    let text = "\
+RUST:
+SAFE, FAST, PRODUCTIVE.
+PICK THREE.";
+
+    assert_eq!(
+        search_regex(pattern, text, &true),
+        vec!["SAFE, FAST, PRODUCTIVE."]
+    );
+}
+
+#[test]
+fn case_sensitive_upper_to_lower() {
+    let pattern = "DUCT";
+    let text = "\
+Rust:
+Safe, fast, productive.
+Pick three.";
+
+    assert_eq!(
+        search_regex(pattern, text, &true).len(),
+        0
     );
 }
 
@@ -106,7 +134,36 @@ Safe, fast, productive.
 Pick three.";
 
     assert_eq!(
-        search_case_insensitive(pattern, text),
+        search_regex(pattern, text, &false),
         vec!["Safe, fast, productive."]
     );
+}
+
+#[test]
+fn regex() {
+    let pattern = "fast.*tive";
+    let text = "\
+Rust:
+Safe, fast, productive.
+Pick three.";
+    
+    assert_eq!(
+        search_regex(pattern, text, &false),
+        vec!["Safe, fast, productive."]
+        )
+}
+
+#[test]
+fn invalid_regex_fallback_to_string() {
+    let pattern = "!f!o---b\\ar|";
+    let text = "\
+!f!o---b\\ar|
+Rust:
+Safe, fast, productive.
+Pick three.";
+    
+    assert_eq!(
+        search_regex(pattern, text, &false),
+        vec!["!f!o---b\\ar|"]
+        )
 }
