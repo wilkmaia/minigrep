@@ -152,3 +152,18 @@ Pick three.";
         vec!["Safe, fast, productive."]
         )
 }
+
+#[test]
+fn invalid_regex_fallback_to_string() {
+    let pattern = "!f!o---b\\ar|";
+    let text = "\
+!f!o---b\\ar|
+Rust:
+Safe, fast, productive.
+Pick three.";
+    
+    assert_eq!(
+        search_regex(pattern, text, &false),
+        vec!["!f!o---b\\ar|"]
+        )
+}
