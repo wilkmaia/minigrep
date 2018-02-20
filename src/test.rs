@@ -56,6 +56,7 @@ fn create_config() {
     assert_eq!(config.filename(), FILENAME);
     assert_eq!(config.pattern(), PATTERN);
     assert_eq!(config.case_sensitive(), &true);
+    assert_eq!(config.highlight_match(), &true);
 }
 
 #[test]
@@ -92,7 +93,7 @@ Safe, fast, productive.
 Pick three.";
 
     assert_eq!(
-        search_regex(pattern, text, &true),
+        search_regex(pattern, text, true, false),
         vec!["Safe, fast, productive."]
     );
 }
@@ -106,7 +107,7 @@ SAFE, FAST, PRODUCTIVE.
 PICK THREE.";
 
     assert_eq!(
-        search_regex(pattern, text, &true),
+        search_regex(pattern, text, true, false),
         vec!["SAFE, FAST, PRODUCTIVE."]
     );
 }
@@ -119,10 +120,7 @@ Rust:
 Safe, fast, productive.
 Pick three.";
 
-    assert_eq!(
-        search_regex(pattern, text, &true).len(),
-        0
-    );
+    assert_eq!(search_regex(pattern, text, true, false).len(), 0);
 }
 
 #[test]
@@ -134,7 +132,7 @@ Safe, fast, productive.
 Pick three.";
 
     assert_eq!(
-        search_regex(pattern, text, &false),
+        search_regex(pattern, text, false, false),
         vec!["Safe, fast, productive."]
     );
 }
@@ -146,11 +144,11 @@ fn regex() {
 Rust:
 Safe, fast, productive.
 Pick three.";
-    
+
     assert_eq!(
-        search_regex(pattern, text, &false),
+        search_regex(pattern, text, false, false),
         vec!["Safe, fast, productive."]
-        )
+    )
 }
 
 #[test]
@@ -161,9 +159,56 @@ fn invalid_regex_fallback_to_string() {
 Rust:
 Safe, fast, productive.
 Pick three.";
-    
+
     assert_eq!(
-        search_regex(pattern, text, &false),
+        search_regex(pattern, text, false, false),
         vec!["!f!o---b\\ar|"]
-        )
+    )
+}
+
+#[test]
+fn invalid_regex_fallback_to_string_with_highlight() {
+    let pattern = "!f!o---b\\ar|";
+    let text = "\
+!f!o---b\\ar|Just a normal sentence.
+Rust:
+Safe, fast, productive.
+Pick three.";
+
+    assert_eq!(
+        search_regex(pattern, text, false, true),
+        vec!["\x1b[7m!f!o---b\\ar|\x1b[0mJust a normal sentence."]
+    )
+}
+
+#[test]
+fn highlight_regex_match() {
+    let pattern = "fast.*tive";
+    let text = "\
+Rust:
+Safe, fast, productive.
+Pick three.";
+
+    assert_eq!(
+        search_regex(pattern, text, false, true),
+        vec!["Safe, \x1b[7mfast, productive\x1b[0m."]
+    )
+}
+
+#[test]
+fn highlight_multiple_lines_regex_match() {
+    let pattern = "fast.*";
+    let text = "\
+Rust:
+Safe, fast, productive.
+Pick three.
+Yes! It's pretty fast!";
+
+    assert_eq!(
+        search_regex(pattern, text, false, true),
+        vec![
+            "Safe, \x1b[7mfast, productive.\x1b[0m",
+            "Yes! It's pretty \x1b[7mfast!\x1b[0m",
+        ]
+    )
 }
