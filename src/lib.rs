@@ -1,20 +1,26 @@
-extern crate regex; 
+extern crate regex;
 
-use std::env;
-use std::fs::File;
-use std::error::Error;
-use std::io::prelude::*;
+use regex::Captures;
 use regex::RegexBuilder;
+use std::env;
+use std::error::Error;
+use std::fs::File;
+use std::io::prelude::*;
+
+static ANSI_REVERSE: &'static str = "\x1b[7m";
+static ANSI_RESET: &'static str = "\x1b[0m";
 
 /// Holds needed configuration information for the tool.
 ///
 /// - `filename`: The file in which the search will be conducted
 /// - `pattern`: The pattern the tool will search
 /// - `case_sensitive`: Specifies if the search should be case sensitive or not
+/// - `highlight_match`: Specifies if the match should be highlighted or not
 pub struct Config {
     filename: String,
     pattern: String,
     case_sensitive: bool,
+    highlight_match: bool,
 }
 
 impl Config {
@@ -32,6 +38,8 @@ impl Config {
     /// let bin_name = String::from("minigrep");
     /// let pattern = String::from("pattern");
     /// let filename = String::from("filename");
+    /// let case_sensitive = true;
+    /// let highlight_match = true;
     /// let mut args = vec![bin_name, pattern, filename].into_iter();
     ///
     /// let config = minigrep::Config::new(args).unwrap();
@@ -39,6 +47,7 @@ impl Config {
     /// assert_eq!(config.pattern(), "pattern");
     /// assert_eq!(config.filename(), "filename");
     /// assert_eq!(config.case_sensitive(), &true);
+    /// assert_eq!(config.highlight_match(), &true);
     /// ```
     pub fn new<T>(mut args: T) -> Result<Config, &'static str>
     where
@@ -56,12 +65,17 @@ impl Config {
             None => return Err("Missing filename"),
         };
 
-        let case_sensitive = env::var("CASE_INSENSITIVE").is_err();
+        // TODO implement case sensitivity match hightlight command line flags
+
+        let case_sensitive = env::var("CASE_SENSITIVE").is_err();
+
+        let highlight_match = true;
 
         Ok(Config {
             filename,
             pattern,
             case_sensitive,
+            highlight_match,
         })
     }
 
@@ -118,6 +132,24 @@ impl Config {
     pub fn case_sensitive(&self) -> &bool {
         &self.case_sensitive
     }
+
+    /// Returns the Config's hightlight match flag value
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let bin_name = String::from("minigrep");
+    /// let pattern = String::from("pattern");
+    /// let filename = String::from("filename");
+    /// let mut args = vec![bin_name, pattern, filename].into_iter();
+    ///
+    /// let config = minigrep::Config::new(args).unwrap();
+    ///
+    /// assert_eq!(config.case_sensitive(), &true);
+    /// ```
+    pub fn highlight_match(&self) -> &bool {
+        &self.highlight_match
+    }
 }
 
 /// Runs the library logic.
@@ -126,6 +158,7 @@ impl Config {
 /// - `filename`: The file in which the search will be conducted
 /// - `pattern`: The pattern the tool will search
 /// - `case_sensitive`: Specifies if the search should be case sensitive or not
+/// - `highlight_match`: Specifies if the match should be highlighted or not
 ///
 /// If the execution runs without any problem, the function returns `()`. If not, a
 /// `Box<std::error::Error>` struct is returned.
@@ -142,7 +175,7 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
     let mut contents = String::new();
     file.read_to_string(&mut contents)?;
 
-    let matches = search_regex(config.pattern(), &contents, &config.case_sensitive);
+    let matches = search_regex(config.pattern(), &contents, config.case_sensitive, true);
 
     for item in matches {
         println!("{}", item);
@@ -151,22 +184,51 @@ pub fn run(config: &Config) -> Result<(), Box<Error>> {
     Ok(())
 }
 
-/// Performs a regular expression search on `text`, looking for `pattern` matches. Case sensitivity is
-/// controlled by the `case_sensitive` boolean flag. If a match is found on a line, 
-/// the whole line is returned.
-pub fn search_regex<'a>(pattern: &str, text: &'a str, case_sensitive: &bool) -> Vec<&'a str> {
+/// Performs a regular expression search on `text`, looking for `pattern` matches.
+/// In the case `pattern` isn't a valid regular expressions, match against it as a simple pattern.
+/// If a match is found on a line, the whole line is returned.
+/// Case sensitivity is controlled by the `case_sensitive` boolean flag.
+/// `highlight_match` boolean flag is used to return a highlighted.
+
+pub fn search_regex(
+    pattern: &str,
+    text: &str,
+    case_sensitive: bool,
+    highlight_match: bool,
+) -> Vec<String> {
     let re = RegexBuilder::new(pattern)
         .case_insensitive(!case_sensitive)
         .build();
 
-    text.lines()
-        .filter(|line| {
-            match re {
-                Ok(ref regex) => regex.is_match(line),
-                Err(_) => line.contains(pattern),
+    text.lines().fold(vec![], |mut acc, line| {
+        match re {
+            Ok(ref regex) => {
+                if regex.is_match(line) {
+                    if highlight_match {
+                        let result = regex.replace_all(line, |caps: &Captures| {
+                            format!("{}{}{}", ANSI_REVERSE, &caps[0], ANSI_RESET)
+                        });
+
+                        acc.push(result.into_owned());
+                    } else {
+                        acc.push(String::from(line));
+                    }
+                }
             }
-        }) 
-        .collect()
+            Err(_) => {
+                if line.contains(pattern) {
+                    if highlight_match {
+                        let formated_string = format!("{}{}{}", ANSI_REVERSE, pattern, ANSI_RESET);
+                        let result = line.replace(pattern, formated_string.as_str());
+                        acc.push(result);
+                    } else {
+                        acc.push(String::from(line));
+                    }
+                }
+            }
+        };
+        acc
+    })
 }
 
 #[cfg(test)]
